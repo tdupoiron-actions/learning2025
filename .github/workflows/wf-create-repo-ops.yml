@@ -49,27 +49,14 @@ jobs:
     steps:
 
       # Create repository
-      - name: Create repository
+      - name: Create GitHub Repository
         id: create_repository
-        uses: actions/github-script@v6.3.3
+        uses: tdupoiron-actions/action-create-repo@v1.0.1
         with:
+          repo-owner: ${{ github.repository_owner }}
+          repo-name: ${{ needs.extract_repository_settings.outputs.repository_name }}
+          repo-visibility: ${{ needs.extract_repository_settings.outputs.repository_visibility }}
           github-token: ${{ secrets.REPO_OPS_TOKEN }}
-          script: |
-            github.rest.repos.createInOrg({
-              org: context.repo.owner,
-              name: '${{ needs.extract_repository_settings.outputs.repository_name }}',
-              visibility: '${{ needs.extract_repository_settings.outputs.repository_visibility }}',
-            }).then(({ data }) => {
-                core.setOutput("repo_full_name", data.full_name);
-                core.setOutput("repo_url", data.html_url);
-                core.setOutput("repo_id", data.id);
-                core.setOutput("status", "success");
-            }
-            ).catch((error) => {
-                core.setOutput("status", "failure");
-                core.setOutput("error", error.response.data.message);
-            }
-            );
 
       # Add comment if repository was created
       - name: Add comment
